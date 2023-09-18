@@ -4,6 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 
 import signUpRoute from "./routes/auth/signUpRoute.js";
+import { connectDB } from "./db-connection/dbConnection.js";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 config();
+connectDB();
 
 // ENV Variables
 const port = process.env.PORT;
