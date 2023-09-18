@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import { generateOTP } from "../otp-service/generateOtp.js";
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const generateOTP = require("../otp-service/generateOtp.js");
 
 const userModel = mongoose.Schema(
   {
@@ -36,4 +36,5 @@ userModel.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export const User = mongoose.model("User", userModel);
+const User = mongoose.model("User", userModel);
+module.exports = User;

@@ -1,10 +1,10 @@
-import express from "express";
-import { config } from "dotenv";
-import cors from "cors";
-import bodyParser from "body-parser";
+const express = require("express");
+const { config } = require("dotenv");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-import signUpRoute from "./routes/auth/signUpRoute.js";
-import { connectDB } from "./db-connection/dbConnection.js";
+const signUpRoute = require("./routes/auth/signUpRoute.js");
+const connectDB = require("./db-connection/dbConnection.js");
 
 const app = express();
 

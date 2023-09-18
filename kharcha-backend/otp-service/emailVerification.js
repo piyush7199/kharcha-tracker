@@ -1,17 +1,15 @@
-import { createTransport } from "nodemailer";
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
+const ElasticEmail = require("@elasticemail/elasticemail-client");
 
 dotenv.config();
 
-export const sendOTPEmail = async (recipientEmail, otp) => {
-  const transporter = createTransport({
-    service: "Gmail",
-    auth: {
-      user: process.env.EMAIL_ADDRESS,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
+const client = ElasticEmail.ApiClient.instance;
 
+const apikey = client.authentications["apikey"];
+apikey.apiKey = process.env.API_KEY;
+const emailsApi = new ElasticEmail.EmailsApi();
+
+const sendOTPEmail = async (recipientEmail, otp) => {
   const subject = "Your Verification Code for Kharcha Tracker";
   const message = `
 Dear User,
@@ -30,17 +28,33 @@ Best regards,
 Team Kharcha Tracker
 `;
 
-  const mailOptions = {
-    from: process.env.EMAIL_ADDRESS,
-    to: recipientEmail,
-    subject: subject,
-    text: message,
+  const emailData = {
+    Recipients: {
+      To: [recipientEmail],
+    },
+    Content: {
+      Body: [
+        {
+          ContentType: "PlainText",
+          Charset: "utf-8",
+          Content: message,
+        },
+      ],
+      From: process.env.EMAIL_ADDRESS,
+      Subject: subject,
+    },
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent: " + info.response);
-  } catch (error) {
-    console.error("Error sending email: " + error);
-  }
+  const callback = (error, data, response) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log("API called successfully.");
+      console.log("Email sent.");
+    }
+  };
+
+  emailsApi.emailsTransactionalPost(emailData, callback);
 };
+
+module.exports = sendOTPEmail;

@@ -1,9 +1,9 @@
-import asyncHandler from "express-async-handler";
-import { isValidEmail } from "../../utilities/utility.js";
-import { User } from "../../models/userModel.js";
-import { sendOTPEmail } from "../../otp-service/emailVerification.js";
+const asyncHandler = require("express-async-handler");
+const User = require("../../models/userModel.js");
+const sendOTPEmail = require("../../otp-service/emailVerification.js");
+const isValidEmail = require("../../utilities/utility.js");
 
-export const signupUser = asyncHandler(async (req, res) => {
+const signupUser = asyncHandler(async (req, res) => {
   const { name, username, email, password } = req.body;
   if (!name) {
     return res.status(400).json({ message: "Please provide name" });
@@ -54,6 +54,8 @@ export const signupUser = asyncHandler(async (req, res) => {
     res.status(500).json({ msg: INTERNAL_SERVER_ERROR });
   }
 });
+
+module.exports = signupUser;
 
 // export const loginUser = asyncHandler(async (req, res) => {
 //   const { email, password } = req.body;
