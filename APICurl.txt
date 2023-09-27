@@ -5,6 +5,18 @@ curl --location 'http://localhost:8000/api/user/signUp' \
 --data-raw '{
     "name": "Piyush",
     "email": "maheswaripiyush9@gmail.com",
-    "password": "password",
-    "username": "adminssss"
+    "password": "piyush@12",
+    "username": "admins"
 }'
+
+Response - 201
+
+{
+    "User": {
+        "id": "65146936d458093007f16cc4",
+        "name": "Piyush",
+        "username": "admins",
+        "email": "maheswaripiyush9@gmail.com"
+    },
+    "status": "success"
+}

@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
+import asyncHandler from "express-async-handler";
 import { createTransport } from "nodemailer";
 
 dotenv.config();
 
-const sendOTPEmail = async (emailId, otp) => {
+const sendOTPEmail = asyncHandler(async (emailId, otp) => {
   try {
     const subject = "Your Verification Code for Kharcha Tracker";
     const message = `
@@ -39,12 +40,12 @@ Team Kharcha Tracker
       if (error) {
         console.log(error);
       } else {
-        console.log("Email sent");
+        console.log(`Verification Email send to ${emailId}`);
       }
     });
   } catch (error) {
     console.log(error);
   }
-};
+});
 
 export default sendOTPEmail;
