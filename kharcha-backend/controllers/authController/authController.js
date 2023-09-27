@@ -73,44 +73,51 @@ export const signupUser = asyncHandler(async (req, res) => {
       );
   }
 
-  let userExist = await User.findOne({ email: email });
+  try {
+    let userExist = await User.findOne({ email: email });
 
-  if (userExist) {
-    return res.status(400).json(getErrorResponse("Email already exists"));
-  }
+    if (userExist) {
+      return res.status(400).json(getErrorResponse("Email already exists"));
+    }
 
-  userExist = await User.findOne({ username: username });
-  if (userExist) {
-    return res.status(400).json(getErrorResponse("Username already exists"));
-  }
+    userExist = await User.findOne({ username: username });
+    if (userExist) {
+      return res.status(400).json(getErrorResponse("Username already exists"));
+    }
 
-  const user = await User.create({
-    name,
-    username,
-    email,
-    password,
-  });
+    const user = await User.create({
+      name,
+      username,
+      email,
+      password,
+    });
 
-  if (user) {
     sendOTPEmail(user.email, user.otp);
-    return res.status(201).json({
+    return res.status(200).json({
       User: {
         id: user._id,
         name: user.name,
         username: user.username,
         email: user.email,
+        isVerified: user.isVerified,
       },
+      token: generatedToken(user._id),
       status: "success",
     });
-  } else {
-    res.status(500).json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
+  } catch (error) {
+    console.log(`Error while creating new user - ${error.message}`);
   }
+  return res
+    .status(500)
+    .json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  if (!email) {
-    return res.status(400).json(getErrorResponseForUnprovidedFields("email"));
+  const { usernameOrEmail, password } = req.body;
+  if (!usernameOrEmail) {
+    return res
+      .status(400)
+      .json(getErrorResponseForUnprovidedFields("email or username"));
   }
 
   if (!password) {
@@ -118,19 +125,30 @@ export const loginUser = asyncHandler(async (req, res) => {
       .status(400)
       .json(getErrorResponseForUnprovidedFields("password"));
   }
-  const user = await User.findOne({ email });
-  if (user && (await user.matchPassword(password))) {
-    return res.status(200).json({
-      User: {
-        id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        token: generatedToken(user._id),
-      },
-      status: "success",
+
+  try {
+    const user = await User.findOne({
+      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
     });
-  } else {
-    res.status(401).json(getErrorResponse("Invalid Email or Password"));
+    if (user && (await user.matchPassword(password))) {
+      return res.status(200).json({
+        User: {
+          id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          isVerified: user.isVerified,
+        },
+        token: generatedToken(user._id),
+        status: "success",
+      });
+    } else {
+      res.status(401).json(getErrorResponse("Invalid Email or Password"));
+    }
+  } catch (error) {
+    console.log(`Error while login the user - ${error.message}`);
   }
+  return res
+    .status(500)
+    .json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
 });
