@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const generateOTP = require("../otp-service/generateOtp.js");
+import { Schema, model } from "mongoose";
+import { genSalt, hash, compare } from "bcrypt";
+import generateOTP from "../otp-service/generateOtp.js";
 
-const userModel = mongoose.Schema(
+const userModel = Schema(
   {
     name: { type: String, require: true },
     username: { type: String, require: true, unique: true },
@@ -26,15 +26,15 @@ userModel.pre("save", async function (next) {
     next();
   }
 
-  const salt = await bcrypt.genSalt(2);
-  this.password = await bcrypt.hash(this.password, salt);
+  const salt = await genSalt(2);
+  this.password = await hash(this.password, salt);
   this.otp = generateOTP();
   this.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 });
 
 userModel.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return await compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model("User", userModel);
-module.exports = User;
+const User = model("User", userModel);
+export default User;

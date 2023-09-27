@@ -1,7 +1,7 @@
-const asyncHandler = require("express-async-handler");
-const User = require("../../models/userModel.js");
-const sendOTPEmail = require("../../otp-service/emailVerification.js");
-const isValidEmail = require("../../utilities/utility.js");
+import asyncHandler from "express-async-handler";
+import User from "../../models/userModel.js";
+import sendOTPEmail from "../../otp-service/emailVerification.js";
+import { isValidEmail } from "../../utilities/utility.js";
 
 const signupUser = asyncHandler(async (req, res) => {
   const { name, username, email, password } = req.body;
@@ -26,6 +26,7 @@ const signupUser = asyncHandler(async (req, res) => {
   }
 
   let userExist = await User.findOne({ email: email });
+
   if (userExist) {
     return res.status(400).json({ msg: "Email already exists" });
   }
@@ -43,7 +44,7 @@ const signupUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    sendOTPEmail(user.email, user.otp);
+    await sendOTPEmail(user.email, user.otp);
     return res.status(201).json({
       id: user._id,
       name: user.name,
@@ -55,7 +56,7 @@ const signupUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = signupUser;
+export default signupUser;
 
 // export const loginUser = asyncHandler(async (req, res) => {
 //   const { email, password } = req.body;

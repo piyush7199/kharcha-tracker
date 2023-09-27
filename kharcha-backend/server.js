@@ -1,10 +1,10 @@
-const express = require("express");
-const { config } = require("dotenv");
-const cors = require("cors");
-const bodyParser = require("body-parser");
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import bodyParser from "body-parser";
 
-const signUpRoute = require("./routes/auth/signUpRoute.js");
-const connectDB = require("./db-connection/dbConnection.js");
+import signUpRoute from "./routes/auth/signUpRoute.js";
+import connectDB from "./db-connection/dbConnection.js";
 
 const app = express();
 
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-config();
+dotenv.config();
 connectDB();
 
 // ENV Variables
