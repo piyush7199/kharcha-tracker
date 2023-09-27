@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
 
-import signUpRoute from "./routes/auth/signUpRoute.js";
+import AuthenticationRoute from "./routes/auth/authenticationRoute.js";
 import connectDB from "./db-connection/dbConnection.js";
 
 const app = express();
@@ -23,7 +23,7 @@ app.get("/health", (req, res) => {
   res.send({ success: true });
 });
 
-app.use("/api/user", signUpRoute);
+app.use("/api/user", AuthenticationRoute);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

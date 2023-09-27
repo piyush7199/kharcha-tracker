@@ -1,22 +1,45 @@
-API to signUp
+Auth Route
+    API to signUp
 
-curl --location 'http://localhost:8000/api/user/signUp' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "name": "Piyush",
-    "email": "maheswaripiyush9@gmail.com",
-    "password": "piyush@12",
-    "username": "admins"
-}'
+        curl --location 'http://localhost:8000/api/user/signUp' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Piyush",
+            "email": "maheswaripiyush9@gmail.com",
+            "password": "piyush@12",
+            "username": "admins"
+        }'
 
-Response - 201
+        Response - 201
 
-{
-    "User": {
-        "id": "65146936d458093007f16cc4",
-        "name": "Piyush",
-        "username": "admins",
-        "email": "maheswaripiyush9@gmail.com"
-    },
-    "status": "success"
-}
+        {
+            "User": {
+                "id": "65146936d458093007f16cc4",
+                "name": "Piyush",
+                "username": "admins",
+                "email": "maheswaripiyush9@gmail.com"
+            },
+            "status": "success"
+        }
+
+    API to login
+
+        curl --location 'http://localhost:8000/api/user/login' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "email": "maheswaripiyushdark7199@gmail.com",
+            "password": "piyush@12"
+        }'
+
+        Res - 200
+
+        {
+            "User": {
+                "id": "651472a5c4be33366dbad7bf",
+                "name": "Piyush",
+                "username": "adminss",
+                "email": "maheswaripiyushdark7199@gmail.com",
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MTQ3MmE1YzRiZTMzMzY2ZGJhZDdiZiIsImlhdCI6MTY5NTgzOTI2OCwiZXhwIjoxNjk2MDEyMDY4fQ.53hri7erNH_KgROXMz2sb4egV8lQY8gwXtvNDqFfK7Y"
+            },
+            "status": "success"
+        }

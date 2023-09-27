@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import User from "../../models/userModel.js";
 import sendOTPEmail from "../../otp-service/emailVerification.js";
 import {
+  generatedToken,
   isValidEmail,
   isValidName,
   isValidPassword,
@@ -120,13 +121,16 @@ export const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
   if (user && (await user.matchPassword(password))) {
     return res.status(200).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      pic: user.pic,
-      token: generatedToken(user._id),
+      User: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        token: generatedToken(user._id),
+      },
+      status: "success",
     });
   } else {
-    res.status(401).json({ msg: "Invalid Email or Password" });
+    res.status(401).json(getErrorResponse("Invalid Email or Password"));
   }
 });
