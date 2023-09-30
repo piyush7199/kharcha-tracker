@@ -10,7 +10,7 @@ Auth Route
             "username": "admins"
         }'
 
-        Response - 201
+        Response - 200
 
         {
             "User": {
@@ -58,7 +58,6 @@ OTP
         Res - 200
 
         {
-            "isValid": true,
             "User": {
                 "id": "6514802f096abe8f2994a308",
                 "name": "Piyush",

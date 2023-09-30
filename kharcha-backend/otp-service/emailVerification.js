@@ -4,21 +4,8 @@ import { createTransport } from "nodemailer";
 
 dotenv.config();
 
-const sendOTPEmail = asyncHandler(async (emailId, otp) => {
+const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
   try {
-    const subject = "Your Verification Code for Kharcha Tracker";
-    const message = `
-Dear User,
-
-Verification Code: ${otp}
-Please enter this code within the next 10 minutes to verify your account.
-
-If you encounter any issues or have questions, please contact our support team at ${process.env.EMAIL_ADDRESS}.
-
-Best regards,
-Team Kharcha Tracker
-`;
-
     const transporter = createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -32,8 +19,8 @@ Team Kharcha Tracker
     const mailOptions = {
       from: process.env.EMAIL_ADDRESS,
       to: emailId,
-      subject: subject,
-      text: message,
+      subject: messageAndSubject.subject,
+      text: messageAndSubject.message,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -48,4 +35,4 @@ Team Kharcha Tracker
   }
 });
 
-export default sendOTPEmail;
+export default sendEmail;

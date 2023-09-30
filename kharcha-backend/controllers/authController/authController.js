@@ -1,6 +1,5 @@
 import asyncHandler from "express-async-handler";
 import User from "../../models/userModel.js";
-import sendOTPEmail from "../../otp-service/emailVerification.js";
 import {
   generatedToken,
   isValidEmail,
@@ -12,7 +11,11 @@ import {
   getErrorResponse,
   getErrorResponseForUnprovidedFields,
 } from "../../utilities/responses/responses.js";
-import { errorMessage } from "../../constants/appConstants.js";
+import {
+  errorMessage,
+  getSignupMessage,
+} from "../../constants/appConstants.js";
+import sendEmail from "../../otp-service/emailVerification.js";
 
 export const signupUser = asyncHandler(async (req, res) => {
   const { name, username, email, password } = req.body;
@@ -92,7 +95,10 @@ export const signupUser = asyncHandler(async (req, res) => {
       password,
     });
 
-    sendOTPEmail(user.email, user.otp);
+    const signUpEmail = getSignupMessage(user.username, user.otp);
+
+    sendEmail(user.email, signUpEmail);
+
     return res.status(200).json({
       User: {
         id: user._id,
@@ -143,7 +149,9 @@ export const loginUser = asyncHandler(async (req, res) => {
         status: "success",
       });
     } else {
-      res.status(401).json(getErrorResponse("Invalid Email or Password"));
+      return res
+        .status(401)
+        .json(getErrorResponse("Invalid Email or Password"));
     }
   } catch (error) {
     console.log(`Error while login the user - ${error.message}`);

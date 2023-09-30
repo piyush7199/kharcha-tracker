@@ -1,12 +1,12 @@
 import asyncHandler from "express-async-handler";
 import User from "../../models/userModel.js";
-import { ObjectId } from "mongoose";
 import {
   getErrorResponse,
   getErrorResponseForUnprovidedFields,
 } from "../../utilities/responses/responses.js";
 import generateOTP from "../../otp-service/generateOtp.js";
-import sendOTPEmail from "../../otp-service/emailVerification.js";
+import { getResendOtpEmail } from "../../constants/appConstants.js";
+import sendEmail from "../../otp-service/emailVerification.js";
 
 export const verifyOtp = asyncHandler(async (req, res) => {
   const { otp } = req.body;
@@ -33,13 +33,12 @@ export const verifyOtp = asyncHandler(async (req, res) => {
         .json(getErrorResponse("OTP is expired. Try resend OTP option."));
     }
 
-    if (otp === user.otp.toString()) {
+    if (otp.toString() === user.otp.toString()) {
       try {
         const updatedUser = await User.findByIdAndUpdate(req.userId, {
           isVerified: true,
         });
         return res.status(200).json({
-          isValid: true,
           User: {
             id: updatedUser._id,
             name: updatedUser.name,
@@ -53,7 +52,6 @@ export const verifyOtp = asyncHandler(async (req, res) => {
       } catch (error) {
         console.log(error.message);
         return {
-          isValid: false,
           message: "Error updating user",
           status: "error",
         };
@@ -86,7 +84,9 @@ export const resend = asyncHandler(async (req, res) => {
     const otp = generateOTP();
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    sendOTPEmail(user.email, otp);
+    const resendOtpEmail = getResendOtpEmail(user.username, otp);
+
+    sendEmail(user.email, resendOtpEmail);
 
     const updatedUser = await User.findByIdAndUpdate(req.userId, {
       isVerified: false,
@@ -95,7 +95,6 @@ export const resend = asyncHandler(async (req, res) => {
     });
 
     return res.status(200).json({
-      isValid: true,
       User: {
         id: updatedUser._id,
         name: updatedUser.name,
