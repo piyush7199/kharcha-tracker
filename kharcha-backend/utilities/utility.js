@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import moment from "m";
 
 dotenv.config();
 
@@ -35,4 +36,9 @@ export const encode = async (value) => {
   const salt = await bcrypt.genSalt(2);
   const encodeValue = await bcrypt.hash(value, salt);
   return encodeValue;
+};
+
+export const getFormatedDate = (date) => {
+  const options = { day: "2-digit", month: "long" };
+  return date.toLocaleDateString("en-US", options);
 };

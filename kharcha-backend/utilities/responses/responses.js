@@ -4,5 +4,5 @@ export const getErrorResponse = (msg) => {
 };
 
 export const getErrorResponseForUnprovidedFields = (name) => {
-  return getErrorResponse(`Please provide ${name}`);
+  return getErrorResponse(`Please provide ${name}.`);
 };

@@ -99,7 +99,7 @@ export const signupUser = asyncHandler(async (req, res) => {
 
     sendEmail(user.email, signUpEmail);
 
-    return res.status(200).json({
+    return res.status(201).json({
       User: {
         id: user._id,
         name: user.name,

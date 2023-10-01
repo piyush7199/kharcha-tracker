@@ -1,7 +1,10 @@
 import { Router } from "express";
 
 import { protect } from "../../middleware/authMiddleware.js";
-import { resend, verifyOtp } from "../../controllers/otp/otpController.js";
+import {
+  resend,
+  verifyOtp,
+} from "../../controllers/otp-controller/otpController.js";
 
 const router = Router();
 

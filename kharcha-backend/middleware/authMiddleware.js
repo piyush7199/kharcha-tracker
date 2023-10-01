@@ -15,8 +15,11 @@ export const protect = asyncHandler(async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log(`In authmiddleWare - ${decoded}`);
+      console.log(`Middleware --> ${decoded}`);
       req.userId = decoded.id;
+      if (!req.userId) {
+        return res.status(403).json(getErrorResponse("Invalid Token"));
+      }
       next();
     } catch (error) {
       return res
@@ -26,6 +29,10 @@ export const protect = asyncHandler(async (req, res, next) => {
   } else {
     return res
       .status(401)
-      .json(getErrorResponse("Not Authorized, token failed"));
+      .json(
+        getErrorResponse(
+          "Authentication required. Please provide valid credentials."
+        )
+      );
   }
 });
