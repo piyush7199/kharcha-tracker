@@ -7,6 +7,7 @@ import AuthenticationRoute from "./routes/auth/authenticationRoute.js";
 import OtpRoute from "./routes/otp/otpRoute.js";
 import UserRoute from "./routes/user/userRoute.js";
 import IncomeRoute from "./routes/kharcha/incomeRoute.js";
+import ExpenseRoute from "./routes/kharcha/expenseRoute.js";
 
 import connectDB from "./db-connection/dbConnection.js";
 
@@ -31,6 +32,7 @@ app.use("/api/user", AuthenticationRoute);
 app.use("/api/otp", OtpRoute);
 app.use("/api/user", UserRoute);
 app.use("/api/income", IncomeRoute);
+app.use("/api/expense", ExpenseRoute);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

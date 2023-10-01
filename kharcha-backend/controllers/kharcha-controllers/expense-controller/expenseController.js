@@ -4,15 +4,15 @@ import {
   getErrorResponseForUnprovidedFields,
 } from "../../../utilities/responses/responses.js";
 import User from "../../../models/userModel.js";
-import Income from "../../../models/incomeModel.js";
+import Expense from "../../../models/expenseModel.js";
 import {
   getDefaulDate,
   getFormatedDate,
   getMaxStartDate,
 } from "../../../utilities/utility.js";
 
-export const addIncome = asyncHandler(async (req, res) => {
-  const { name, amount, date, category } = req.body;
+export const addExpense = asyncHandler(async (req, res) => {
+  const { name, amount, date, category, paidVia, subCategory } = req.body;
 
   if (!name) {
     return res.status(400).json(getErrorResponseForUnprovidedFields("name"));
@@ -38,6 +38,16 @@ export const addIncome = asyncHandler(async (req, res) => {
       .json(getErrorResponseForUnprovidedFields("category"));
   }
 
+  if (!subCategory) {
+    return res
+      .status(400)
+      .json(getErrorResponseForUnprovidedFields("subCategory"));
+  }
+
+  if (!paidVia) {
+    return res.status(400).json(getErrorResponseForUnprovidedFields("paidVia"));
+  }
+
   const parsedDate = new Date(date);
   if (isNaN(parsedDate.getTime())) {
     return res.status(400).json(getErrorResponse("Date must be a valid date."));
@@ -57,35 +67,39 @@ export const addIncome = asyncHandler(async (req, res) => {
       return res.status(400).json(getErrorResponse("User does not exists."));
     }
 
-    const incomeModelData = {
+    const expenseModelData = {
       userId: req.userId,
       name: name,
       amount: amount,
       createdOn: parsedDate,
       category: category,
+      subCategory: subCategory,
+      paidVia: paidVia,
     };
 
-    const income = await Income.create(incomeModelData);
+    const expense = await Expense.create(expenseModelData);
 
     return res.status(201).json({
-      income: {
-        name: income.name,
-        amount: income.amount,
-        createdOn: getFormatedDate(income.createdOn),
-        category: income.category,
+      expense: {
+        name: expense.name,
+        amount: expense.amount,
+        createdOn: getFormatedDate(expense.createdOn),
+        category: expense.category,
+        subCategory: expense.subCategory,
+        paidVia: expense.paidVia,
       },
       status: "success",
     });
   } catch (error) {
-    console.log(`Error while creating income - ${error.message}`);
+    console.log(`Error while creating expense - ${error.message}`);
   }
   return res
     .status(500)
     .json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
 });
 
-export const updateIncome = asyncHandler(async (req, res) => {
-  const { id, name, amount, date, category } = req.body;
+export const updateExpense = asyncHandler(async (req, res) => {
+  const { id, name, amount, date, category, paidVia, subCategory } = req.body;
 
   if (!id) {
     return res.status(400).json(getErrorResponseForUnprovidedFields("id"));
@@ -98,14 +112,14 @@ export const updateIncome = asyncHandler(async (req, res) => {
       return res.status(400).json(getErrorResponse("User does not exists."));
     }
 
-    const existingIncome = await Income.findById(id);
+    const existingExpense = await Expense.findById(id);
 
-    if (!existingIncome) {
-      return res.status(400).json(getErrorResponse("Income id not exists."));
+    if (!existingExpense) {
+      return res.status(400).json(getErrorResponse("Expense id not exists."));
     }
 
     if (name) {
-      existingIncome.name = name;
+      existingExpense.name = name;
     }
 
     if (amount) {
@@ -114,7 +128,7 @@ export const updateIncome = asyncHandler(async (req, res) => {
           .status(400)
           .json(getErrorResponse("Amount must be a valid positive number."));
       }
-      existingIncome.amount = amount;
+      existingExpense.amount = amount;
     }
 
     if (date) {
@@ -135,33 +149,43 @@ export const updateIncome = asyncHandler(async (req, res) => {
           );
       }
 
-      existingIncome.createdOn = parsedDate;
+      existingExpense.createdOn = parsedDate;
     }
 
     if (category) {
-      existingIncome.category = category;
+      existingExpense.category = category;
     }
 
-    const updateedIncome = await existingIncome.save();
+    if (subCategory) {
+      existingExpense.subCategory = subCategory;
+    }
+
+    if (paidVia) {
+      existingExpense.paidVia = paidVia;
+    }
+
+    const updatedExpense = await existingExpense.save();
 
     return res.status(201).json({
-      income: {
-        name: updateedIncome.name,
-        amount: updateedIncome.amount,
-        createdOn: getFormatedDate(updateedIncome.createdOn),
-        category: updateedIncome.category,
+      Expense: {
+        name: updatedExpense.name,
+        amount: updatedExpense.amount,
+        createdOn: getFormatedDate(updatedExpense.createdOn),
+        category: updatedExpense.category,
+        subCategory: updatedExpense.subCategory,
+        paidVia: updatedExpense.paidVia,
       },
       status: "success",
     });
   } catch (error) {
-    console.log(`Error while updating income - ${error.message}`);
+    console.log(`Error while updating expense - ${error.message}`);
   }
   return res
     .status(500)
     .json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
 });
 
-export const deleteIncome = asyncHandler(async (req, res) => {
+export const deleteExpense = asyncHandler(async (req, res) => {
   const { id } = req.body;
 
   if (!id) {
@@ -175,26 +199,30 @@ export const deleteIncome = asyncHandler(async (req, res) => {
       return res.status(400).json(getErrorResponse("User does not exists."));
     }
 
-    const deletedIncome = await Income.findByIdAndDelete(id);
+    const deletedExpense = await Expense.findByIdAndDelete(id);
 
-    if (!deletedIncome) {
-      console.log(`Income record not found for ${id}.`);
+    if (!deletedExpense) {
+      console.log(`Expense record not found for ${id}.`);
     }
 
     return res.status(204).send();
   } catch (error) {
-    console.log(`Error while deleting income - ${error.message}`);
+    console.log(`Error while deleting expense - ${error.message}`);
   }
   return res
     .status(500)
     .json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
 });
 
-export const getIncome = asyncHandler(async (req, res) => {
+export const getExpense = asyncHandler(async (req, res) => {
   const startDateParam = req.query.startDate;
   const endDateParam = req.query.endDate;
   const categoryParam = req.query.category
     ? req.query.category.split(",")
+    : null;
+
+  const subCategoryParam = req.query.subCategory
+    ? req.query.subCategory.split(",")
     : null;
 
   const defaultEndDate = getDefaulDate(endDateParam, false);
@@ -247,9 +275,13 @@ export const getIncome = asyncHandler(async (req, res) => {
       query.category = { $in: categoryParam };
     }
 
-    const incomeData = await Income.find(query).sort({ createdOn: -1 });
+    if (subCategoryParam) {
+      query.subCategory = { $in: subCategoryParam };
+    }
 
-    const formattedIncomeData = incomeData.map((item) => ({
+    const expenseData = await Expense.find(query).sort({ createdOn: -1 });
+
+    const formattedExpenseData = expenseData.map((item) => ({
       id: item._id,
       name: item.name,
       amount: item.amount,
@@ -257,18 +289,18 @@ export const getIncome = asyncHandler(async (req, res) => {
       date: getFormatedDate(item.createdOn),
     }));
 
-    const totalIncome = incomeData.reduce(
+    const totalExpense = expenseData.reduce(
       (total, item) => total + item.amount,
       0
     );
 
     return res.status(200).json({
-      incomeData: formattedIncomeData,
-      totalIncome: totalIncome,
+      expenseData: formattedExpenseData,
+      totalExpense: totalExpense,
       status: "success",
     });
   } catch (error) {
-    console.log(`Error while gettting income - ${error.message}`);
+    console.log(`Error while gettting expense - ${error.message}`);
   }
   return res
     .status(500)

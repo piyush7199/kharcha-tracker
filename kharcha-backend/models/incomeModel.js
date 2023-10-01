@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 const incomeModel = Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  userId: { type: Schema.Types.ObjectId, ref: "User" },
   name: { type: String, require: true },
   amount: { type: Number, require: true },
   createdOn: {
