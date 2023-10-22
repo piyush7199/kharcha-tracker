@@ -7,7 +7,10 @@ import {
   getErrorResponseForUnprovidedFields,
 } from "../../utilities/responses/responses.js";
 import generateOTP from "../../otp-service/generateOtp.js";
-import { getEmailChangeMail } from "../../constants/appConstants.js";
+import {
+  getEmailChangeMail,
+  getForgetEmail,
+} from "../../constants/appConstants.js";
 import sendEmail from "../../otp-service/emailVerification.js";
 import {
   isValidEmail,
@@ -209,6 +212,129 @@ export const changePassword = asyncHandler(async (req, res) => {
       );
   } catch (error) {
     console.log(`Error while updating password - ${error.message}`);
+  }
+  return res
+    .status(500)
+    .json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
+});
+
+export const forgetPassword = asyncHandler(async (req, res) => {
+  const { usernameOrEmail, otp, newPassword } = req.body;
+
+  if (!newPassword) {
+    return res
+      .status(400)
+      .json(getErrorResponseForUnprovidedFields("newPassword"));
+  }
+
+  if (!usernameOrEmail) {
+    return res
+      .status(400)
+      .json(getErrorResponseForUnprovidedFields("Email or Username"));
+  }
+
+  if (!otp) {
+    return res.status(400).json(getErrorResponseForUnprovidedFields("otp"));
+  }
+
+  if (!isValidPassword(newPassword)) {
+    return res
+      .status(400)
+      .json(
+        getErrorResponse(
+          "Invalid password. Passwords should be at least 7 characters long, contain at least one letter, one numeric character, and one special character."
+        )
+      );
+  }
+
+  try {
+    const user = await User.findOne({
+      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+    });
+
+    if (!user) {
+      return res.status(400).json(getErrorResponse("User does not exists."));
+    }
+
+    const currentTs = new Date();
+    if (currentTs > user.otpExpiry) {
+      return res
+        .status(400)
+        .json(getErrorResponse("OTP is expired. Try resend OTP option."));
+    }
+
+    if (otp.toString() === user.otp.toString()) {
+      try {
+        const salt = await genSalt(2);
+        const password = await hash(newPassword, salt);
+
+        const updatedUser = await User.findByIdAndUpdate(user._id, {
+          password: password,
+        });
+
+        return res.status(200).json({
+          User: {
+            id: updatedUser._id,
+            name: updatedUser.name,
+            username: updatedUser.username,
+            email: updatedUser.email,
+            isVerified: true,
+          },
+          message: "Password has been changed successfully",
+          status: "success",
+        });
+      } catch (error) {
+        console.log(error.message);
+        return {
+          message: "Error changing password",
+          status: "error",
+        };
+      }
+    } else {
+      return res.status(400).json(getErrorResponse("OTP is incorrect."));
+    }
+  } catch (error) {
+    console.log(`Error while updating password - ${error.message}`);
+  }
+  return res
+    .status(500)
+    .json(getErrorResponse(errorMessage.INTERNAL_SERVER_ERROR));
+});
+
+export const sendForgateMailOtp = asyncHandler(async (req, res) => {
+  const { usernameOrEmail } = req.body;
+
+  if (!usernameOrEmail) {
+    return res
+      .status(400)
+      .json(getErrorResponseForUnprovidedFields("Email or Username"));
+  }
+
+  try {
+    const user = await User.findOne({
+      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+    });
+
+    if (!user) {
+      return res.status(400).json(getErrorResponse("User does not exists."));
+    }
+
+    const otp = generateOTP();
+    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+    const forgetPasswordMail = getForgetEmail(user.username, otp);
+    sendEmail(user.email, forgetPasswordMail);
+
+    await User.findByIdAndUpdate(user._id, {
+      otp: otp,
+      otpExpiry: expiry,
+    });
+
+    return res.status(200).json({
+      message: "Check Your Email",
+      status: "success",
+    });
+  } catch (error) {
+    console.log(`Error while resending new user - ${error.message}`);
   }
   return res
     .status(500)

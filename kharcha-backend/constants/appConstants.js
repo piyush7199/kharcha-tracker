@@ -83,3 +83,28 @@ The ${appRelatedConsts.appName} Team
   };
   return emailChangeMessageAndSubject;
 };
+
+export const getForgetEmail = (userName, otp) => {
+  const subject = `Password Reset Request for ${appRelatedConsts.appName}`;
+  const message = `
+Hello ${userName},
+
+We received a request to reset your password for your ${appRelatedConsts.appName} account. To complete the password reset process, please follow the instructions below.
+
+Password Reset Code: ${otp}
+
+Please use the code above to reset your password. This code is valid for the next 10 minutes. If you didn't request this password reset or have any concerns, please contact our support team at ${appRelatedConsts.appEmail} immediately.
+
+Once your password is reset, you can log in to your ${appRelatedConsts.appName} account using your new password.
+
+Thank you for choosing ${appRelatedConsts.appName}. If you need further assistance or have any questions, please feel free to reach out to our support team.
+
+Best regards,
+The ${appRelatedConsts.appName} Team
+`;
+  const emailChangeMessageAndSubject = {
+    subject: subject,
+    message: message,
+  };
+  return emailChangeMessageAndSubject;
+};

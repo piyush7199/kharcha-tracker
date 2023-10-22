@@ -11,5 +11,12 @@ const incomeModel = Schema({
   category: { type: String, require: true },
 });
 
+incomeModel.pre("save", function (next) {
+  if (this.createdOn instanceof Date === false) {
+    this.createdOn = new Date(this.createdOn);
+  }
+  next();
+});
+
 const Income = model("Income", incomeModel);
 export default Income;

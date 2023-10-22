@@ -48,7 +48,18 @@ export const addExpense = asyncHandler(async (req, res) => {
     return res.status(400).json(getErrorResponseForUnprovidedFields("paidVia"));
   }
 
-  const parsedDate = new Date(date);
+  const dateComponents = date.split("-");
+  if (dateComponents.length !== 3) {
+    return res
+      .status(400)
+      .json(getErrorResponse("Date must be in YYYY-MM-DD format."));
+  }
+
+  const year = parseInt(dateComponents[0]);
+  const month = parseInt(dateComponents[1]) - 1;
+  const day = parseInt(dateComponents[2]);
+
+  const parsedDate = new Date(year, month, day, 0, 0, 0, 0);
   if (isNaN(parsedDate.getTime())) {
     return res.status(400).json(getErrorResponse("Date must be a valid date."));
   }
@@ -132,7 +143,18 @@ export const updateExpense = asyncHandler(async (req, res) => {
     }
 
     if (date) {
-      const parsedDate = new Date(date);
+      const dateComponents = date.split("-");
+      if (dateComponents.length !== 3) {
+        return res
+          .status(400)
+          .json(getErrorResponse("Date must be in YYYY-MM-DD format."));
+      }
+
+      const year = parseInt(dateComponents[0]);
+      const month = parseInt(dateComponents[1]) - 1;
+      const day = parseInt(dateComponents[2]);
+
+      const parsedDate = new Date(year, month, day, 0, 0, 0, 0);
 
       if (isNaN(parsedDate.getTime())) {
         return res
@@ -226,19 +248,8 @@ export const getExpense = asyncHandler(async (req, res) => {
     : null;
 
   const defaultEndDate = getDefaulDate(endDateParam, false);
-
-  console.log(`End date -> ${getFormatedDate(defaultEndDate)}`);
-  console.log(`End date -> ${defaultEndDate}`);
-
   const maxStartDate = getMaxStartDate();
-
-  console.log(`Max start date -> ${getFormatedDate(maxStartDate)}`);
-  console.log(`Max start date -> ${maxStartDate}`);
-
   const defaultStartDate = getDefaulDate(startDateParam, true);
-
-  console.log(`Start date -> ${getFormatedDate(defaultStartDate)}`);
-  console.log(`Start date -> ${defaultStartDate}`);
 
   if (defaultStartDate > defaultEndDate) {
     return res
@@ -265,7 +276,7 @@ export const getExpense = asyncHandler(async (req, res) => {
 
     let query = {
       userId: req.userId,
-      date: {
+      createdOn: {
         $gte: defaultStartDate,
         $lte: defaultEndDate,
       },
@@ -286,6 +297,8 @@ export const getExpense = asyncHandler(async (req, res) => {
       name: item.name,
       amount: item.amount,
       category: item.category,
+      subCategory: item.subCategory,
+      paidVia: item.paidVia,
       date: getFormatedDate(item.createdOn),
     }));
 

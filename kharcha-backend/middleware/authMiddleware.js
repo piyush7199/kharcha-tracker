@@ -15,7 +15,7 @@ export const protect = asyncHandler(async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log(`Middleware --> ${decoded}`);
+
       req.userId = decoded.id;
       if (!req.userId) {
         return res.status(403).json(getErrorResponse("Invalid Token"));

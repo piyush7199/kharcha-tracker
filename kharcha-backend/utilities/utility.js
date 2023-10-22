@@ -38,7 +38,12 @@ export const encode = async (value) => {
 };
 
 export const getFormatedDate = (date) => {
-  const options = { day: "2-digit", month: "long" };
+  const options = { month: "short", day: "2-digit", year: "numeric" };
+  return date.toLocaleDateString("en-US", options);
+};
+
+export const getMonthAndDate = (date) => {
+  const options = { month: "short", day: "2-digit" };
   return date.toLocaleDateString("en-US", options);
 };
 
@@ -51,7 +56,7 @@ export const getDefaulDate = (date, isStartDate) => {
   }
 
   defaultDate.setHours(23, 59, 59, 999);
-  return defaultDate;
+  return defaultDate.toISOString();
 };
 
 export const getMaxStartDate = () => {
@@ -60,5 +65,5 @@ export const getMaxStartDate = () => {
   const previousYear = currentYear - 1;
   const maxStartDate = new Date(previousYear, 11, 31, 23, 59, 59, 999);
   maxStartDate.setHours(23, 59, 59, 999);
-  return maxStartDate;
+  return maxStartDate.toISOString();
 };

@@ -12,7 +12,7 @@ import {
 } from "../../../utilities/utility.js";
 
 export const addInvestment = asyncHandler(async (req, res) => {
-  const { name, amount, date, category } = req.body;
+  const { name, amount, date, investedIn } = req.body;
 
   if (!name) {
     return res.status(400).json(getErrorResponseForUnprovidedFields("name"));
@@ -32,13 +32,24 @@ export const addInvestment = asyncHandler(async (req, res) => {
     return res.status(400).json(getErrorResponseForUnprovidedFields("date"));
   }
 
-  if (!category) {
+  if (!investedIn) {
     return res
       .status(400)
-      .json(getErrorResponseForUnprovidedFields("category"));
+      .json(getErrorResponseForUnprovidedFields("investedIn"));
   }
 
-  const parsedDate = new Date(date);
+  const dateComponents = date.split("-");
+  if (dateComponents.length !== 3) {
+    return res
+      .status(400)
+      .json(getErrorResponse("Date must be in YYYY-MM-DD format."));
+  }
+
+  const year = parseInt(dateComponents[0]);
+  const month = parseInt(dateComponents[1]) - 1;
+  const day = parseInt(dateComponents[2]);
+
+  const parsedDate = new Date(year, month, day, 0, 0, 0, 0);
   if (isNaN(parsedDate.getTime())) {
     return res.status(400).json(getErrorResponse("Date must be a valid date."));
   }
@@ -62,7 +73,7 @@ export const addInvestment = asyncHandler(async (req, res) => {
       name: name,
       amount: amount,
       createdOn: parsedDate,
-      category: category,
+      investedIn: investedIn,
     };
 
     const investment = await Investment.create(investmentModelData);
@@ -72,7 +83,7 @@ export const addInvestment = asyncHandler(async (req, res) => {
         name: investment.name,
         amount: investment.amount,
         createdOn: getFormatedDate(investment.createdOn),
-        category: investment.category,
+        investedIn: investment.investedIn,
       },
       status: "success",
     });
@@ -85,7 +96,7 @@ export const addInvestment = asyncHandler(async (req, res) => {
 });
 
 export const updateInvestment = asyncHandler(async (req, res) => {
-  const { id, name, amount, date, category } = req.body;
+  const { id, name, amount, date, investedIn } = req.body;
 
   if (!id) {
     return res.status(400).json(getErrorResponseForUnprovidedFields("id"));
@@ -120,7 +131,18 @@ export const updateInvestment = asyncHandler(async (req, res) => {
     }
 
     if (date) {
-      const parsedDate = new Date(date);
+      const dateComponents = date.split("-");
+      if (dateComponents.length !== 3) {
+        return res
+          .status(400)
+          .json(getErrorResponse("Date must be in YYYY-MM-DD format."));
+      }
+
+      const year = parseInt(dateComponents[0]);
+      const month = parseInt(dateComponents[1]) - 1;
+      const day = parseInt(dateComponents[2]);
+
+      const parsedDate = new Date(year, month, day, 0, 0, 0, 0);
 
       if (isNaN(parsedDate.getTime())) {
         return res
@@ -140,8 +162,8 @@ export const updateInvestment = asyncHandler(async (req, res) => {
       existingInvestment.createdOn = parsedDate;
     }
 
-    if (category) {
-      existingInvestment.category = category;
+    if (investedIn) {
+      existingInvestment.investedIn = investedIn;
     }
 
     const updateedInvestment = await existingInvestment.save();
@@ -151,7 +173,7 @@ export const updateInvestment = asyncHandler(async (req, res) => {
         name: updateedInvestment.name,
         amount: updateedInvestment.amount,
         createdOn: getFormatedDate(updateedInvestment.createdOn),
-        category: updateedInvestment.category,
+        investedIn: updateedInvestment.investedIn,
       },
       status: "success",
     });
@@ -195,25 +217,13 @@ export const deleteInvestment = asyncHandler(async (req, res) => {
 export const getInvestment = asyncHandler(async (req, res) => {
   const startDateParam = req.query.startDate;
   const endDateParam = req.query.endDate;
-  const categoryParam = req.query.category
-    ? req.query.category.split(",")
+  const investedInParam = req.query.investedIn
+    ? req.query.investedIn.split(",")
     : null;
 
   const defaultEndDate = getDefaulDate(endDateParam, false);
-
-  console.log(`End date -> ${getFormatedDate(defaultEndDate)}`);
-  console.log(`End date -> ${defaultEndDate}`);
-
   const maxStartDate = getMaxStartDate();
-
-  console.log(`Max start date -> ${getFormatedDate(maxStartDate)}`);
-  console.log(`Max start date -> ${maxStartDate}`);
-
   const defaultStartDate = getDefaulDate(startDateParam, true);
-
-  console.log(`Start date -> ${getFormatedDate(defaultStartDate)}`);
-  console.log(`Start date -> ${defaultStartDate}`);
-
   if (defaultStartDate > defaultEndDate) {
     return res
       .status(400)
@@ -239,14 +249,14 @@ export const getInvestment = asyncHandler(async (req, res) => {
 
     let query = {
       userId: req.userId,
-      date: {
+      createdOn: {
         $gte: defaultStartDate,
         $lte: defaultEndDate,
       },
     };
 
-    if (categoryParam) {
-      query.category = { $in: categoryParam };
+    if (investedInParam) {
+      query.investedIn = { $in: investedInParam };
     }
 
     const investmentData = await Investment.find(query).sort({ createdOn: -1 });
@@ -255,7 +265,7 @@ export const getInvestment = asyncHandler(async (req, res) => {
       id: item._id,
       name: item.name,
       amount: item.amount,
-      category: item.category,
+      investedIn: item.investedIn,
       date: getFormatedDate(item.createdOn),
     }));
 

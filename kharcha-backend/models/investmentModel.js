@@ -8,7 +8,7 @@ const investmentModel = Schema({
     type: Date,
     default: Date.now,
   },
-  category: { type: String, require: true },
+  investedIn: { type: String, require: true },
 });
 
 const Investment = model("Investment", investmentModel);
