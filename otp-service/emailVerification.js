@@ -5,8 +5,9 @@ import { createTransport } from "nodemailer";
 dotenv.config();
 
 const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
-  console.log(process.env.EMAIL_APP_PASSWORD);
   try {
+    console.log(emailId);
+    console.log(process.env.EMAIL_ADDRESS);
     const transporter = createTransport({
       host: "smtp.gmail.com",
       port: 465,
