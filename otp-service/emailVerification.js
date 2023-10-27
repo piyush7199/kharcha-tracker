@@ -13,7 +13,7 @@ const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
       secure: true,
       auth: {
         user: process.env.EMAIL_ADDRESS,
-        pass: process.env.EMAIL_APP_PASSWORD.replace("_"," "),
+        pass: process.env.EMAIL_APP_PASSWORD.replaceAll("_"," "),
       },
     });
 
