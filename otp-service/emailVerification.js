@@ -5,7 +5,7 @@ import { createTransport } from "nodemailer";
 dotenv.config();
 
 const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
-  console.log(process.env.EMAIL_APP_PASSWORD.replace("_"," "));
+  console.log(process.env.EMAIL_APP_PASSWORD.replaceAll("_"," "));
   try {
     const transporter = createTransport({
       host: "smtp.gmail.com",
