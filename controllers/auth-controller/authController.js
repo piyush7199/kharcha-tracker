@@ -136,6 +136,11 @@ export const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({
       $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
     });
+
+    if (!user) {
+      return res.status(400).json(getErrorResponse("User does not exists"));
+    }
+
     if (user && (await user.matchPassword(password))) {
       return res.status(200).json({
         User: {
