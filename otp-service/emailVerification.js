@@ -9,7 +9,7 @@ const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
     console.log(emailId);
     console.log(process.env.EMAIL_ADDRESS);
     const transporter = createTransport({
-      host: "smtp.gmail.com",
+      host: "Gmail",
       port: 465,
       secure: true,
       auth: {
