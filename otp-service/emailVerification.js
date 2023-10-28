@@ -7,7 +7,7 @@ dotenv.config();
 const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
   try {
     console.log("Sending Email using nodemailer");
-    const transporter = createTransport({
+    const transporter = await createTransport({
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
@@ -24,7 +24,7 @@ const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
       text: messageAndSubject.message,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    await transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log(error);
       } else {
