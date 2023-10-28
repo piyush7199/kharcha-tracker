@@ -6,6 +6,7 @@ dotenv.config();
 
 const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
   try {
+    console.log("Sending Email using nodemailer");
     const transporter = createTransport({
       host: "smtp.gmail.com",
       port: 465,

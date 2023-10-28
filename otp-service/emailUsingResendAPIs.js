@@ -7,6 +7,7 @@ dotenv.config();
 const sendEmailUsingResendAPIS = asyncHandler(
   async (emailId, messageAndSubject) => {
     try {
+      console.log("Sending Email using resend");
       const resend = new Resend(process.env.API_KEY);
 
       const data = await resend.emails.send({
