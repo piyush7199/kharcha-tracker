@@ -7,6 +7,10 @@ import {
 import generateOTP from "../../otp-service/generateOtp.js";
 import { getResendOtpEmail } from "../../constants/appConstants.js";
 import sendEmail from "../../otp-service/emailVerification.js";
+import sendEmailUsingResendAPIS from "../../otp-service/emailUsingResendAPIs.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const verifyOtp = asyncHandler(async (req, res) => {
   const { otp } = req.body;
@@ -86,7 +90,11 @@ export const resend = asyncHandler(async (req, res) => {
 
     const resendOtpEmail = getResendOtpEmail(user.username, otp);
 
-    sendEmail(user.email, resendOtpEmail);
+    if (process.env.ENVIRONMENT === "PROD") {
+      sendEmailUsingResendAPIS(user.email, resendOtpEmail);
+    } else {
+      sendEmail(user.email, resendOtpEmail);
+    }
 
     const updatedUser = await User.findByIdAndUpdate(req.userId, {
       isVerified: false,
