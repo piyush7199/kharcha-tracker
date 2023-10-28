@@ -27,7 +27,7 @@ connectDB();
 const port = process.env.PORT;
 
 app.get("/health", (req, res) => {
-  res.send({ success: true });
+  res.sendStatus(200);
 });
 
 app.use("/api/user", AuthenticationRoute);
