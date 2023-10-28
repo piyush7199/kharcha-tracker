@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import asyncHandler from "express-async-handler";
 import dotenv from "dotenv";
 
 dotenv.config();
