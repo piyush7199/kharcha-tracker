@@ -90,7 +90,10 @@ export const resend = asyncHandler(async (req, res) => {
 
     const resendOtpEmail = getResendOtpEmail(user.username, otp);
 
-    sendEmail(user.email, resendOtpEmail);
+    const emailRes = await sendEmail(newEmail, resendOtpEmail);
+    if (!emailRes || !emailRes.status !== 200) {
+      return res.send(emailRes);
+    }
 
     const updatedUser = await User.findByIdAndUpdate(req.userId, {
       isVerified: false,

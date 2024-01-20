@@ -71,7 +71,10 @@ export const changeEmail = asyncHandler(async (req, res) => {
 
     const resendOtpEmail = getEmailChangeMail(user.username, otp, newEmail);
 
-    sendEmail(newEmail, resendOtpEmail);
+    const emailRes = await sendEmail(newEmail, resendOtpEmail);
+    if (!emailRes || !emailRes.status !== 200) {
+      return res.send(emailRes);
+    }
 
     const updatedUser = await User.findByIdAndUpdate(req.userId, {
       isVerified: false,
@@ -327,7 +330,10 @@ export const sendForgateMailOtp = asyncHandler(async (req, res) => {
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
     const forgetPasswordMail = getForgetEmail(user.username, otp);
 
-    sendEmail(user.email, forgetPasswordMail);
+    const emailRes = await sendEmail(newEmail, resendOtpEmail);
+    if (!emailRes || !emailRes.status !== 200) {
+      return res.send(emailRes);
+    }
 
     await User.findByIdAndUpdate(user._id, {
       otp: otp,

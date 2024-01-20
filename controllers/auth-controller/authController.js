@@ -101,7 +101,10 @@ export const signupUser = asyncHandler(async (req, res) => {
 
     const signUpEmail = getSignupMessage(user.username, user.otp);
 
-    sendEmail(user.email, signUpEmail);
+    const emailRes = await sendEmail(newEmail, resendOtpEmail);
+    if (!emailRes || !emailRes.status !== 200) {
+      return res.send(emailRes);
+    }
 
     return res.status(201).json({
       User: {
