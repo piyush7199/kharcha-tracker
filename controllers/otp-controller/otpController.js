@@ -91,7 +91,7 @@ export const resend = asyncHandler(async (req, res) => {
     const resendOtpEmail = getResendOtpEmail(user.username, otp);
 
     const emailRes = await sendEmail(user.email, resendOtpEmail);
-    if (!emailRes || !emailRes.status !== 200) {
+    if (!emailRes || emailRes.status !== 200) {
       return res.send(emailRes);
     }
 

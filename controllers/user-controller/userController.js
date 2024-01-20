@@ -72,7 +72,7 @@ export const changeEmail = asyncHandler(async (req, res) => {
     const resendOtpEmail = getEmailChangeMail(user.username, otp, newEmail);
 
     const emailRes = await sendEmail(newEmail, resendOtpEmail);
-    if (!emailRes || !emailRes.status !== 200) {
+    if (!emailRes || emailRes.status !== 200) {
       return res.send(emailRes);
     }
 
@@ -331,7 +331,7 @@ export const sendForgateMailOtp = asyncHandler(async (req, res) => {
     const forgetPasswordMail = getForgetEmail(user.username, otp);
 
     const emailRes = await sendEmail(user.email, forgetPasswordMail);
-    if (!emailRes || !emailRes.status !== 200) {
+    if (!emailRes || emailRes.status !== 200) {
       return res.send(emailRes);
     }
 
