@@ -17,7 +17,7 @@ import {
 } from "../../constants/appConstants.js";
 import sendEmail from "../../otp-service/emailVerification.js";
 import dotenv from "dotenv";
-import sendEmailUsingResendAPIS from "../../otp-service/emailUsingResendAPIs.js";
+// import sendEmailUsingResendAPIS from "../../otp-service/emailUsingResendAPIs.js";
 
 dotenv.config();
 
@@ -101,11 +101,8 @@ export const signupUser = asyncHandler(async (req, res) => {
 
     const signUpEmail = getSignupMessage(user.username, user.otp);
 
-    if (process.env.ENVIRONMENT === "PROD") {
-      sendEmailUsingResendAPIS(user.email, signUpEmail);
-    } else {
-      sendEmail(user.email, signUpEmail);
-    }
+    sendEmail(user.email, signUpEmail);
+
     return res.status(201).json({
       User: {
         id: user._id,

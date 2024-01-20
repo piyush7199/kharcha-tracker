@@ -1,38 +1,29 @@
+import axios from "axios";
 import dotenv from "dotenv";
 import asyncHandler from "express-async-handler";
-import { createTransport } from "nodemailer";
 
 dotenv.config();
 
 const sendEmail = asyncHandler(async (emailId, messageAndSubject) => {
+  const url = process.env.EMAIL_SERVICE_URL;
+  const authToken = process.env.EMAIL_SERVICE_TOKEN;
+  const apiUrl = url + "/email/send";
+
+  const emailData = {
+    emailId: emailId,
+    messageAndSubject: messageAndSubject,
+  };
+
   try {
-    console.log("Sending Email using nodemailer");
-    const transporter = await createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_ADDRESS,
-        pass: process.env.EMAIL_APP_PASSWORD,
+    const response = await axios.post(apiUrl, emailData, {
+      headers: {
+        authtoken: authToken,
+        "Content-type": "application/json",
       },
     });
-
-    const mailOptions = {
-      from: process.env.EMAIL_ADDRESS,
-      to: emailId,
-      subject: messageAndSubject.subject,
-      text: messageAndSubject.message,
-    };
-
-    await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(`Verification Email send to ${emailId}`);
-      }
-    });
+    console.log("Status Code:", response.status);
   } catch (error) {
-    console.log(error);
+    console.error("Error:", error.message);
   }
 });
 

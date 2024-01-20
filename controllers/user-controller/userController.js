@@ -18,7 +18,7 @@ import {
   isValidPassword,
 } from "../../utilities/utility.js";
 import dotenv from "dotenv";
-import sendEmailUsingResendAPIS from "../../otp-service/emailUsingResendAPIs.js";
+// import sendEmailUsingResendAPIS from "../../otp-service/emailUsingResendAPIs.js";
 
 dotenv.config();
 
@@ -70,11 +70,8 @@ export const changeEmail = asyncHandler(async (req, res) => {
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
     const resendOtpEmail = getEmailChangeMail(user.username, otp, newEmail);
-    if (process.env.ENVIRONMENT === "PROD") {
-      sendEmailUsingResendAPIS(newEmail, resendOtpEmail);
-    } else {
-      sendEmail(newEmail, resendOtpEmail);
-    }
+
+    sendEmail(newEmail, resendOtpEmail);
 
     const updatedUser = await User.findByIdAndUpdate(req.userId, {
       isVerified: false,
@@ -330,11 +327,7 @@ export const sendForgateMailOtp = asyncHandler(async (req, res) => {
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
     const forgetPasswordMail = getForgetEmail(user.username, otp);
 
-    if (process.env.ENVIRONMENT === "PROD") {
-      sendEmailUsingResendAPIS(user.email, forgetPasswordMail);
-    } else {
-      sendEmail(user.email, forgetPasswordMail);
-    }
+    sendEmail(user.email, forgetPasswordMail);
 
     await User.findByIdAndUpdate(user._id, {
       otp: otp,
