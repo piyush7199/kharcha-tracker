@@ -330,7 +330,7 @@ export const sendForgateMailOtp = asyncHandler(async (req, res) => {
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
     const forgetPasswordMail = getForgetEmail(user.username, otp);
 
-    const emailRes = await sendEmail(newEmail, resendOtpEmail);
+    const emailRes = await sendEmail(user.email, forgetPasswordMail);
     if (!emailRes || !emailRes.status !== 200) {
       return res.send(emailRes);
     }
